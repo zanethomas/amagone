@@ -1,2 +1,4 @@
 # amagone
-search results filter
+amagone
+
+removes amazon from search results
