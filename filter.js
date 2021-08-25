@@ -18,23 +18,6 @@ function restoreState() {
     });
 }
 
-function start() {
-  const links = document.querySelector('.mainline-results--').querySelectorAll('a');
-
-  links.forEach(l => {
-    if(l.host === 'www.amazon.com') {
-      let parent = l.parentElement;
-
-      while(parent && !parent.classList.contains('w-gl__result')) {
-        parent = parent.parentElement;
-      }
-      if(parent) {
-        parent.remove();
-      }
-    }
-  })
-}
-
 function bing() {
   const results = document.getElementById('b_results');
 
@@ -86,7 +69,6 @@ function unk() {
 const zapper =
   location.host.indexOf('duckduckgo') >= 0 ? duck :
   location.host.indexOf('google') >= 0 ? goog :
-  location.host.indexOf('startpage') >= 0 ? start :
   location.host.indexOf('bing') >= 0 ? bing : null;
 
 if(!zapper) {
