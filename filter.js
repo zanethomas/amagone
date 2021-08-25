@@ -1,4 +1,39 @@
-let beenhere = false;
+const browser = chrome || browser;
+
+let state = 'on';
+
+function saveState() {
+  browser.storage.local.set({
+    state
+  });
+}
+
+function restoreState() {
+    browser.storage.local.get('state', res => {
+      state = res.state;
+      browser.runtime.sendMessage({
+        type: "state",
+        state
+      });
+    });
+}
+
+function start() {
+  const links = document.querySelector('.mainline-results--').querySelectorAll('a');
+
+  links.forEach(l => {
+    if(l.host === 'www.amazon.com') {
+      let parent = l.parentElement;
+
+      while(parent && !parent.classList.contains('w-gl__result')) {
+        parent = parent.parentElement;
+      }
+      if(parent) {
+        parent.remove();
+      }
+    }
+  })
+}
 
 function bing() {
   const results = document.getElementById('b_results');
@@ -34,6 +69,7 @@ function goog() {
       g.remove();
     }
   });
+  document.getElementById('tads')?.remove();
 }
 
 function duck() {
@@ -44,27 +80,51 @@ function duck() {
 }
 
 function unk() {
-  debugger;
 }
 
-const observer = new MutationObserver((mutations) => {
 
-  const zapper =
-    location.host.indexOf('duckduckgo') >= 0 ? duck :
-    location.host.indexOf('google') >= 0 ? goog :
-    location.host.indexOf('bing') >= 0 ? bing : unk;
+const zapper =
+  location.host.indexOf('duckduckgo') >= 0 ? duck :
+  location.host.indexOf('google') >= 0 ? goog :
+  location.host.indexOf('startpage') >= 0 ? start :
+  location.host.indexOf('bing') >= 0 ? bing : null;
 
+if(!zapper) {
+  browser.runtime.sendMessage({
+    type: "state",
+    state:'disabled'
+  });
+} else {
+  const observer = new MutationObserver((mutations) => {
+    restoreState();
 
-  setTimeout(() => {
-    if(beenhere) {
+    if(state === 'off') {
       return;
     }
-    beenhere = true;
-    zapper();
-  },10)
-});
 
-observer.observe(document.body, {
-  childList: true,
-  subtree: true
-});
+
+    setTimeout(() => {
+      zapper();
+    },10)
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  browser.runtime.onMessage.addListener(
+    function(request, sender, sendResponse) {
+      if(request.toggle) {
+        state = state === 'on' ? 'off' : 'on';
+        sendResponse({state});
+        saveState();
+        window.location.reload();
+      } else if(request.getState) {
+        sendResponse({state});
+      }
+    }
+  );
+
+  restoreState();
+}

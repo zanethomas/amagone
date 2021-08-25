@@ -5,8 +5,15 @@
   "homepage_url": "https://github.com/zanethomas/amagone",
   "version": "1.0",
   "icons": {
-    "48": "icons/icon.png",
-    "96": "icons/icon@2x.png"
+    "48": "icons/new-no.png",
+    "96": "icons/new-no@2x.png"
+  },
+  "browser_action": {
+    "default_icon": "icons/disabled-38.png",
+    "default_title": "amagone"
+  },
+  "background": {
+    "scripts": ["background.js"]
   },
   "permissions": ["storage"],
   "content_scripts": [{

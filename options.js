@@ -14,7 +14,7 @@ function restoreLog() {
     if(!res) {
       return;
     }
-    
+
     const parent = document.getElementById('log');
 
     res.log.forEach(item => {
@@ -37,3 +37,9 @@ function addSite(event) {
 
 document.addEventListener('DOMContentLoaded', restoreOptions);
 document.getElementById('add-site').addEventListener('click', addSite);
+
+function  handleClick() {
+  debugger;
+}
+
+browser.browserAction.onClicked.addListener(handleClick);
