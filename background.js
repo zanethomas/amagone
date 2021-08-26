@@ -5,12 +5,10 @@ let state;
 let icon = 'icons/grey-38.png';
 
 const icons = {
-  on: 'icons/strike-38.png',
+  on: 'icons/no-a-38.png',
   off: 'icons/a-38.png',
   disabled: 'icons/grey-a-38.png'
 };
-
-browser.browserAction.onClicked.addListener(toggle);
 
 const query = async params => {
   return new Promise((resolve, reject) => {
@@ -18,23 +16,23 @@ const query = async params => {
   });
 }
 
-const sendMessage = async (message) => {
+const sendMessage = async (tab, message) => {
   return new Promise(async (resolve, reject) => {
     const tabs = await query({active: true, currentWindow: true});
 
-    browser.tabs.sendMessage(tabs[0].id, message, resolve);
+    browser.tabs.sendMessage(tab.id, message, resolve);
   });
 }
 
-async function toggle() {
+const toggle = async (tab) => {
   if(state !== 'disabled') {
-    response = await sendMessage({toggle: true});
+    response = await sendMessage(tab, {toggle: true});
     state = response.state;
-    setIcon();    
+    setIcon();
   }
 }
 
-function setIcon() {
+const setIcon = () => {
   browser.browserAction.setIcon({
     path: {
       38: icon
@@ -45,10 +43,11 @@ function setIcon() {
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   sendResponse();
 
-  console.log(request);
   if(request.state) {
     state = request.state;
     icon = icons[request.state];
   }
   setIcon();
 });
+
+browser.browserAction.onClicked.addListener(toggle);
